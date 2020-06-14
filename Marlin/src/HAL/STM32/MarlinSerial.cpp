@@ -26,6 +26,17 @@
   #include "../../feature/e_parser.h"
 #endif
 
+<<<<<<< HEAD
+=======
+#ifndef USART4
+  #define USART4 UART4
+#endif
+
+#ifndef USART5
+  #define USART5 UART5
+#endif
+
+>>>>>>> bugfix-2.0.x
 #define DECLARE_SERIAL_PORT(ser_num) \
   void _rx_complete_irq_ ## ser_num (serial_t * obj); \
   MarlinSerial MSerial ## ser_num (USART ## ser_num, &_rx_complete_irq_ ## ser_num); \

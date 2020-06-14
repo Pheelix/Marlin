@@ -19,8 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include "../shared/eeprom_api.h"
+/**
+ * $(filename)
+ */
 
-#define FLASH_EEPROM_EMULATION
