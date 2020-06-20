@@ -1609,9 +1609,9 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT 30
+  #define PROBING_MARGIN_LEFT 40
   #define PROBING_MARGIN_RIGHT PROBING_MARGIN
-  #define PROBING_MARGIN_FRONT 30
+  #define PROBING_MARGIN_FRONT 40
   #define PROBING_MARGIN_BACK PROBING_MARGIN
 #endif
 
