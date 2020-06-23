@@ -1609,8 +1609,8 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT 38
-  #define PROBING_MARGIN_RIGHT 38
+  #define PROBING_MARGIN_LEFT 35
+  #define PROBING_MARGIN_RIGHT 35
   #define PROBING_MARGIN_FRONT 38
   #define PROBING_MARGIN_BACK PROBING_MARGIN
 #endif
@@ -1824,7 +1824,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 256
+#define TX_BUFFER_SIZE 32
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
