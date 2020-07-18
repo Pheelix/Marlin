@@ -1004,7 +1004,7 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 12000
+#define XY_PROBE_SPEED 8000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -1373,7 +1373,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X5 Y50"
+#define Z_PROBE_END_SCRIPT "G1 Z10 F8000\nG1 X5 Y50"
 
 // @section homing
 
@@ -1403,8 +1403,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (30*60)
-#define HOMING_FEEDRATE_Z  (30*60)
+#define HOMING_FEEDRATE_XY (20*50)
+#define HOMING_FEEDRATE_Z  (20*50)
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
