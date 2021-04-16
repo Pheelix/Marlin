@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 target_filename = "FIRMWARE.CUR"
-target_drive = "REARM"
+target_drive = "T:"
 
 import os,getpass,platform
 

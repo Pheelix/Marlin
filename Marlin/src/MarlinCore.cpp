@@ -76,6 +76,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "lcd/dwin/e3v2/dwin.h"
+  #include "lcd/dwin/dwin_lcd.h"
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
@@ -210,7 +211,9 @@
   #include "feature/fanmux.h"
 #endif
 
-#include "module/tool_change.h"
+#if DO_SWITCH_EXTRUDER || ANY(SWITCHING_NOZZLE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, ELECTROMAGNETIC_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD)
+  #include "module/tool_change.h"
+#endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
@@ -729,9 +732,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
 
-  // TODO: Still causing errors
-  (void)check_tool_sensor_stats(active_extruder, true);
-
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
 
@@ -758,7 +758,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(SDSUPPORT, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
+  TERN_(USB_FLASH_DRIVE_SUPPORT, Sd2Card::idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -889,8 +889,8 @@ void stop() {
 
   print_job_timer.stop();
 
-  #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-    thermalManager.set_fans_paused(false); // Un-pause fans for safety
+  #if ENABLED(PROBING_FANS_OFF)
+    if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
   #endif
 
   if (IsRunning()) {
@@ -953,92 +953,23 @@ inline void tmc_standby_setup() {
 }
 
 /**
- * Marlin Firmware entry-point. Abandon Hope All Ye Who Enter Here.
- * Setup before the program loop:
- *
- *  - Call any special pre-init set for the board
- *  - Put TMC drivers into Low Power Standby mode
- *  - Init the serial ports (so setup can be debugged)
- *  - Set up the kill and suicide pins
- *  - Prepare (disable) board JTAG and Debug ports
- *  - Init serial for a connected MKS TFT with WiFi
- *  - Install Marlin custom Exception Handlers, if set.
- *  - Init Marlin's HAL interfaces (for SPI, i2c, etc.)
- *  - Init some optional hardware and features:
- *    • MAX Thermocouple pins
- *    • Duet Smart Effector
- *    • Filament Runout Sensor
- *    • TMC220x Stepper Drivers (Serial)
- *    • PSU control
- *    • Power-loss Recovery
- *    • L64XX Stepper Drivers (SPI)
- *    • Stepper Driver Reset: DISABLE
- *    • TMC Stepper Drivers (SPI)
- *    • Run BOARD_INIT if defined
- *    • ESP WiFi
- *  - Get the Reset Reason and report it
+ * Marlin entry-point: Set up before the program loop
+ *  - Set up the kill pin, filament runout, power hold, custom user buttons
+ *  - Start the serial port
  *  - Print startup messages and diagnostics
- *  - Calibrate the HAL DELAY for precise timing
- *  - Init the buzzer, possibly a custom timer
- *  - Init more optional hardware:
- *    • Color LED illumination
- *    • Neopixel illumination
- *    • Controller Fan
- *    • Creality DWIN LCD (show boot image)
- *    • Tare the Probe if possible
- *  - Mount the (most likely external) SD Card
- *  - Load settings from EEPROM (or use defaults)
- *  - Init the Ethernet Port
- *  - Init Touch Buttons (for emulated DOGLCD)
- *  - Adjust the (certainly wrong) current position by the home offset
- *  - Init the Planner::position (steps) based on current (native) position
- *  - Initialize more managers and peripherals:
- *    • Temperatures
- *    • Print Job Timer
- *    • Endstops and Endstop Interrupts
- *    • Stepper ISR - Kind of Important!
- *    • Servos
- *    • Servo-based Probe
- *    • Photograph Pin
- *    • Laser/Spindle tool Power / PWM
- *    • Coolant Control
- *    • Bed Probe
- *    • Stepper Driver Reset: ENABLE
- *    • Digipot I2C - Stepper driver current control
- *    • Stepper DAC - Stepper driver current control
- *    • Solenoid (probe, or for other use)
- *    • Home Pin
- *    • Custom User Buttons
- *    • Red/Blue Status LEDs
- *    • Case Light
- *    • Prusa MMU filament changer
- *    • Fan Multiplexer
- *    • Mixing Extruder
- *    • BLTouch Probe
- *    • I2C Position Encoders
- *    • Custom I2C Bus handlers
- *    • Enhanced tools or extruders:
- *      • Switching Extruder
- *      • Switching Nozzle
- *      • Parking Extruder
- *      • Magnetic Parking Extruder
- *      • Switching Toolhead
- *      • Electromagnetic Switching Toolhead
- *    • Watchdog Timer - Also Kind of Important!
- *    • Closed Loop Controller
- *  - Run Startup Commands, if defined
- *  - Tell host to close Host Prompts
- *  - Test Trinamic driver connections
- *  - Init Prusa MMU2 filament changer
- *  - Init and test BL24Cxx EEPROM
- *  - Init Creality DWIN encoder, show faux progress bar
- *  - Reset Status Message / Show Service Messages
- *  - Init MAX7219 LED Matrix
- *  - Init Direct Stepping (Klipper-style motion control)
- *  - Init TFT LVGL UI (with 3D Graphics)
- *  - Apply Password Lock - Hold for Authentication
- *  - Open Touch Screen Calibration screen, if not calibrated
- *  - Set Marlin to RUNNING State
+ *  - Get EEPROM or default settings
+ *  - Initialize managers for:
+ *    • temperature
+ *    • planner
+ *    • watchdog
+ *    • stepper
+ *    • photo pin
+ *    • servos
+ *    • LCD controller
+ *    • Digipot I2C
+ *    • Z probe sled
+ *    • status LEDs
+ *    • Max7219
  */
 void setup() {
   #ifdef BOARD_PREINIT
@@ -1059,14 +990,14 @@ void setup() {
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
-  MYSERIAL1.begin(BAUDRATE);
+  MYSERIAL0.begin(BAUDRATE);
   millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  while (!MYSERIAL0.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL2.begin(BAUDRATE);
+    MYSERIAL1.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
   SERIAL_ECHOLNPGM("start");
 
@@ -1123,10 +1054,6 @@ void setup() {
     SETUP_RUN(runout.setup());
   #endif
 
-  #if HAS_TMC220x
-    SETUP_RUN(tmc_serial_begin());
-  #endif
-
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
     powersupply_on = ENABLED(PSU_DEFAULT_OFF);
@@ -1139,6 +1066,10 @@ void setup() {
 
   #if HAS_L64XX
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
+  #endif
+
+  #if HAS_TMC220x
+    SETUP_RUN(tmc_serial_begin());
   #endif
 
   #if HAS_STEPPER_RESET
@@ -1183,6 +1114,11 @@ void setup() {
 
   // Some HAL need precise delay adjustment
   calibrate_delay_loop();
+
+  // Init buzzer pin(s)
+  #if USE_BEEPER
+    SETUP_RUN(buzzer.init());
+  #endif
 
   // Init buzzer pin(s)
   #if USE_BEEPER
@@ -1380,6 +1316,7 @@ void setup() {
   #if PIN_EXISTS(STAT_LED_RED)
     OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
+
   #if PIN_EXISTS(STAT_LED_BLUE)
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
@@ -1432,13 +1369,19 @@ void setup() {
     #endif
   #endif
 
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    SETUP_RUN(mpe_settings_init());
+  #endif
+
   #if ENABLED(PARKING_EXTRUDER)
     SETUP_RUN(pe_solenoid_init());
-  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
-    SETUP_RUN(mpe_settings_init());
-  #elif ENABLED(SWITCHING_TOOLHEAD)
+  #endif
+
+  #if ENABLED(SWITCHING_TOOLHEAD)
     SETUP_RUN(swt_init());
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #endif
+
+  #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
   #endif
 
@@ -1476,9 +1419,7 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)

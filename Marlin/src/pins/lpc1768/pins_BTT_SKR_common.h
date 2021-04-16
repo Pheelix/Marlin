@@ -21,7 +21,13 @@
  */
 #pragma once
 
-#include "env_validate.h"
+#if ENABLED(SKR_HAS_LPC1769)
+  #if NOT_TARGET(MCU_LPC1769)
+    #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
+  #endif
+#elif NOT_TARGET(MCU_LPC1768)
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
+#endif
 
 // If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
@@ -81,7 +87,7 @@
 #endif
 #if HOTENDS == 1
   #ifndef FAN1_PIN
-    #define FAN1_PIN                       P2_04
+    #define FAN1_PIN                       P1_00
   #endif
 #else
   #ifndef HEATER_1_PIN

@@ -60,8 +60,12 @@
  * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino Due' or 'Mega 2560' in 'Tools > Board.'"
+#endif
+
 #define BOARD_INFO_NAME "RAMPS-SMART"
-#define ALLOW_SAM3X8E
+#define IS_RAMPS_SMART
 #include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space

@@ -21,7 +21,9 @@
  */
 #pragma once
 
-#include "env_validate.h"
+#if NOT_TARGET(STM32F4)
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#endif
 
 // BigTreeTech driver expansion module https://bit.ly/3ptRRoj
 //#define BTT_MOTOR_EXPANSION
@@ -441,10 +443,10 @@
 // Alter timing for graphical display
 #if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(90)
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3   DELAY_NS(600)

@@ -145,9 +145,21 @@ static void setup_clocks(void) {
  * at the Flash base address, 0x08000000.
  */
 #if defined(BOOTLOADER_maple)
+<<<<<<< HEAD
+<<<<<<< HEAD
+	#define USER_ADDR_ROM 0x08002000
+#else
+	#define USER_ADDR_ROM 0x08000000
+=======
   #define USER_ADDR_ROM 0x08002000
 #else
   #define USER_ADDR_ROM 0x08000000
+>>>>>>> bugfix-2.0.x
+=======
+  #define USER_ADDR_ROM 0x08002000
+#else
+  #define USER_ADDR_ROM 0x08000000
+>>>>>>> 2.0.x
 #endif
 #define USER_ADDR_RAM 0x20000C00
 extern char __text_start__;

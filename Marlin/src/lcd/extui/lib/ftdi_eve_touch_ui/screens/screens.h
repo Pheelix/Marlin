@@ -61,8 +61,7 @@ enum {
       ZOFFSET_SCREEN_CACHE,
     #endif
     #if HAS_MESH
-      BED_MESH_VIEW_SCREEN_CACHE,
-      BED_MESH_EDIT_SCREEN_CACHE,
+      BED_MESH_SCREEN_CACHE,
     #endif
   #endif
   #if ENABLED(BABYSTEPPING)
@@ -108,7 +107,7 @@ enum {
   #if ENABLED(SDSUPPORT)
     FILES_SCREEN_CACHE,
   #endif
-  #if ENABLED(CUSTOM_MENU_MAIN)
+  #if ENABLED(CUSTOM_USER_MENUS)
     CUSTOM_USER_MENUS_SCREEN_CACHE,
   #endif
   CHANGE_FILAMENT_SCREEN_CACHE,
@@ -207,9 +206,7 @@ enum {
     #include "z_offset_screen.h"
   #endif
   #if HAS_MESH
-    #include "bed_mesh_base.h"
-    #include "bed_mesh_view_screen.h"
-    #include "bed_mesh_edit_screen.h"
+    #include "bed_mesh_screen.h"
   #endif
 #endif
 
@@ -251,7 +248,7 @@ enum {
   #include "files_screen.h"
 #endif
 
-#if ENABLED(CUSTOM_MENU_MAIN)
+#if ENABLED(CUSTOM_USER_MENUS)
   #include "custom_user_menus.h"
 #endif
 

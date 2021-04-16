@@ -20,14 +20,12 @@ board = env.BoardConfig()
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32-maple")
 assert os.path.isdir(FRAMEWORK_DIR)
-
-source_root = os.path.join("buildroot", "share", "PlatformIO", "variants")
-assert os.path.isdir(source_root)
+assert os.path.isdir("buildroot/share/PlatformIO/variants")
 
 variant = board.get("build.variant")
 variant_dir = os.path.join(FRAMEWORK_DIR, "STM32F1", "variants", variant)
 
-source_dir = os.path.join(source_root, variant)
+source_dir = os.path.join("buildroot/share/PlatformIO/variants", variant)
 assert os.path.isdir(source_dir)
 
 if os.path.isdir(variant_dir):

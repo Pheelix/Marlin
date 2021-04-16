@@ -24,9 +24,9 @@
  * Creality 4.2.x (STM32F103RET6) board pin assignments
  */
 
-#include "env_validate.h"
-
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if NOT_TARGET(__STM32F1__)
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
+#elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -34,7 +34,7 @@
   #define BOARD_INFO_NAME      "Creality V4"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3 V2"
+  #define DEFAULT_MACHINE_NAME "Ender 3"
 #endif
 
 #define BOARD_NO_NATIVE_USB

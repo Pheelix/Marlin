@@ -3,6 +3,16 @@
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import subprocess,os,re
+try:
+	import configparser
+except ImportError:
+	import ConfigParser as configparser
+try:
+	# PIO < 4.4
+	from platformio.managers.package import PackageManager
+except ImportError:
+	# PIO >= 4.4
+	from platformio.package.meta import PackageSpec as PackageManager
 
 PIO_VERSION_MIN = (5, 0, 3)
 try:
@@ -28,9 +38,6 @@ except SystemExit:
 except:
 	print("Can't detect PlatformIO Version")
 
-from platformio.package.meta import PackageSpec
-from platformio.project.config import ProjectConfig
-
 Import("env")
 
 #print(env.Dump())
@@ -43,6 +50,13 @@ except:
 def blab(str):
 	if verbose:
 		print(str)
+
+def parse_pkg_uri(spec):
+	if PackageManager.__name__ == 'PackageSpec':
+		return PackageManager(spec).name
+	else:
+		name, _, _ = PackageManager.parse_pkg_uri(spec)
+		return name
 
 FEATURE_CONFIG = {}
 
@@ -72,7 +86,9 @@ def add_to_feat_cnf(feature, flines):
 				feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
 
 def load_config():
-	items = ProjectConfig().items('features')
+	config = configparser.ConfigParser()
+	config.read("platformio.ini")
+	items = config.items('features')
 	for key in items:
 		feature = key[0].upper()
 		if not feature in FEATURE_CONFIG:
@@ -98,14 +114,16 @@ def get_all_known_libs():
 		if not 'lib_deps' in feat:
 			continue
 		for dep in feat['lib_deps']:
-			known_libs.append(PackageSpec(dep).name)
+			name = parse_pkg_uri(dep)
+			known_libs.append(name)
 	return known_libs
 
 def get_all_env_libs():
 	env_libs = []
 	lib_deps = env.GetProjectOption('lib_deps')
 	for dep in lib_deps:
-		env_libs.append(PackageSpec(dep).name)
+		name = parse_pkg_uri(dep)
+		env_libs.append(name)
 	return env_libs
 
 def set_env_field(field, value):
@@ -136,19 +154,20 @@ def apply_features_config():
 			# feat to add
 			deps_to_add = {}
 			for dep in feat['lib_deps']:
-				deps_to_add[PackageSpec(dep).name] = dep
+				name = parse_pkg_uri(dep)
+				deps_to_add[name] = dep
 
 			# Does the env already have the dependency?
 			deps = env.GetProjectOption('lib_deps')
 			for dep in deps:
-				name = PackageSpec(dep).name
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
 			# Are there any libraries that should be ignored?
 			lib_ignore = env.GetProjectOption('lib_ignore')
 			for dep in deps:
-				name = PackageSpec(dep).name
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
