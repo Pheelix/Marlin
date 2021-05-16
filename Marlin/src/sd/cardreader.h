@@ -49,6 +49,7 @@ typedef struct {
   bool saving:1,
        logging:1,
        sdprinting:1,
+       sdprintdone:1,
        mounted:1,
        filenameIsDir:1,
        workDirIsRoot:1,
@@ -124,23 +125,37 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
+<<<<<<< HEAD
   static void selectFileByName(const char* const match);
+=======
+  static void selectFileByName(const char * const match);  // (working directory only)
+>>>>>>> bugfix-2.0.x
 
   // Print job
-  static void openAndPrintFile(const char *name);   // (working directory)
-  static void fileHasFinished();
-  static void getAbsFilename(char *dst);
-  static void printFilename();
-  static void startFileprint();
-  static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
-  static inline void pauseSDPrint() { flag.sdprinting = false; }
-  static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
-  static inline bool isPrinting() { return flag.sdprinting; }
+  static void getAbsFilenameInCWD(char *dst);
+  static void printSelectedFilename();
+  static void openAndPrintFile(const char *name);   // (working directory or full path)
+  static void startOrResumeFilePrinting();
+  static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
+  static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
+  static void fileHasFinished();
+  static inline void abortFilePrintSoon() { flag.abort_sd_printing = true; }
+  static inline void pauseSDPrint()       { flag.sdprinting = false; }
+  static inline bool isPrinting()         { return flag.sdprinting; }
+  static inline bool isPaused()           { return isFileOpen() && !isPrinting(); }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
-    static inline uint16_t permyriadDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0; }
+    static inline uint16_t permyriadDone() {
+      if (flag.sdprintdone) return 10000;
+      if (isFileOpen() && filesize) return sdpos / ((filesize + 9999) / 10000);
+      return 0;
+    }
   #endif
-  static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
+  static inline uint8_t percentDone() {
+    if (flag.sdprintdone) return 100;
+    if (isFileOpen() && filesize) return sdpos / ((filesize + 99) / 100);
+    return 0;
+  }
 
   // Helper for open and remove
   static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
@@ -163,6 +178,7 @@ public:
     static void removeJobRecoveryFile();
   #endif
 
+<<<<<<< HEAD
   static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline uint32_t getIndex() { return sdpos; }
   static inline uint32_t getFileSize() { return filesize; }
@@ -172,6 +188,22 @@ public:
   static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+=======
+  // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
+  static inline char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
+
+  // Print File stats
+  static inline uint32_t getFileSize()  { return filesize; }
+  static inline uint32_t getIndex()     { return sdpos; }
+  static inline bool isFileOpen()       { return isMounted() && file.isOpen(); }
+  static inline bool eof()              { return getIndex() >= getFileSize(); }
+
+  // File data operations
+  static inline int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
+  static inline int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  static inline void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
+>>>>>>> bugfix-2.0.x
 
   static Sd2Card& getSd2Card() { return sd2card; }
 
@@ -285,7 +317,8 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
-#define IS_SD_PRINTING()  card.flag.sdprinting
+#define IS_SD_PRINTING()  (card.flag.sdprinting && !card.flag.abort_sd_printing)
+#define IS_SD_FETCHING()  (!card.flag.sdprintdone && IS_SD_PRINTING())
 #define IS_SD_PAUSED()    card.isPaused()
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
@@ -294,6 +327,7 @@ extern CardReader card;
 #else // !SDSUPPORT
 
 #define IS_SD_PRINTING()  false
+#define IS_SD_FETCHING()  false
 #define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
 

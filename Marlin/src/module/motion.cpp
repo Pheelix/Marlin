@@ -102,7 +102,7 @@ xyze_pos_t destination; // {0}
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
-  xyz_pos_t stored_position[SAVED_POSITIONS];
+  xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -230,6 +230,58 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
+<<<<<<< HEAD
+=======
+#if ENABLED(AUTO_REPORT_POSITION)
+  //struct PositionReport { void report() { report_current_position_projected(); } };
+  AutoReporter<PositionReport> position_auto_reporter;
+#endif
+
+#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+
+  M_StateEnum M_State_grbl = M_INIT;
+
+  /**
+   * Output the current grbl compatible state to serial while moving
+   */
+  void report_current_grblstate_moving() { SERIAL_ECHOLNPAIR("S_XYZ:", int(M_State_grbl)); }
+
+  /**
+   * Output the current position (processed) to serial while moving
+   */
+  void report_current_position_moving() {
+
+    get_cartesian_from_steppers();
+    const xyz_pos_t lpos = cartes.asLogical();
+    SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+
+    stepper.report_positions();
+    #if IS_SCARA
+      scara_report_positions();
+    #endif
+
+    report_current_grblstate_moving();
+  }
+
+  /**
+   * Set a Grbl-compatible state from the current marlin_state
+   */
+  M_StateEnum grbl_state_for_marlin_state() {
+    switch (marlin_state) {
+      case MF_INITIALIZING: return M_INIT;
+      case MF_SD_COMPLETE:  return M_ALARM;
+      case MF_WAITING:      return M_IDLE;
+      case MF_STOPPED:      return M_END;
+      case MF_RUNNING:      return M_RUNNING;
+      case MF_PAUSED:       return M_HOLD;
+      case MF_KILLED:       return M_ERROR;
+      default:              return M_IDLE;
+    }
+  }
+
+#endif
+
+>>>>>>> bugfix-2.0.x
 /**
  * Run out the planner buffer and re-sync the current
  * position from the last-updated stepper positions.
@@ -363,12 +415,19 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
     planner.e_factor[active_extruder] = 1.0f;
   #endif
 
+<<<<<<< HEAD
   #if IS_KINEMATIC
     if (is_fast)
       prepare_fast_move_to_destination();
     else
   #endif
       prepare_line_to_destination();
+=======
+  if (TERN0(IS_KINEMATIC, is_fast))
+    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
+  else
+    prepare_line_to_destination();
+>>>>>>> bugfix-2.0.x
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;

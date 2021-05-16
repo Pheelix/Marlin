@@ -26,10 +26,11 @@
 
 #ifdef __IMXRT1062__
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include "../shared/Delay.h"
 #include "timers.h"
-
 #include <Wire.h>
 
 DefaultSerial MSerial(false);
@@ -115,6 +116,8 @@ uint8_t HAL_get_reset_source() {
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 #define __bss_end _ebss
 
