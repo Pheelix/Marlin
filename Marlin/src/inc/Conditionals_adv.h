@@ -366,14 +366,19 @@
   #endif
 #endif
 
+// If platform requires early initialization of watchdog to properly boot
+#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
+  #define EARLY_WATCHDOG 1
+#endif
+
 // Full Touch Screen needs 'tft/xpt2046'
-#if EITHER(TFT_TOUCH_DEVICE_XPT2046, HAS_TFT_LVGL_UI)
+#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
 #endif
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_BUTTONS)
   #define NEED_TOUCH_PINS 1
 #endif
 

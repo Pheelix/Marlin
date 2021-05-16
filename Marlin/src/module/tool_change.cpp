@@ -109,7 +109,10 @@
 
   void move_extruder_servo(const uint8_t e) {
     planner.synchronize();
-    if ((EXTRUDERS & 1) && e < EXTRUDERS - 1) {
+    #if EXTRUDERS & 1
+      if (e < EXTRUDERS - 1)
+    #endif
+    {
       MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
@@ -966,19 +969,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             if (ENABLED(SINGLENOZZLE)) { active_extruder = new_tool; return; }
           }
           else {
-<<<<<<< HEAD
             #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
               // For first new tool, change without unloading the old. 'Just prime/init the new'
               if (first_tool_is_primed)
                 unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
               first_tool_is_primed = true; // The first new tool will be primed by toolchanging
             #endif
-=======
-            // For first new tool, change without unloading the old. 'Just prime/init the new'
-            if (TERN1(TOOLCHANGE_FS_PRIME_FIRST_USED, first_tool_is_primed))
-              unscaled_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
-            TERN_(TOOLCHANGE_FS_PRIME_FIRST_USED, first_tool_is_primed = true); // The first new tool will be primed by toolchanging
->>>>>>> bugfix-2.0.x
           }
         }
       #endif
@@ -1077,9 +1073,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
-          thermalManager.singlenozzle_change(old_tool, new_tool);
-        #endif
+        TERN_(SINGLENOZZLE_STANDBY_TEMP, thermalManager.singlenozzle_change(old_tool, new_tool));
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {
@@ -1266,7 +1260,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     // Migrate the temperature to the new hotend
     #if HAS_MULTI_HOTEND
-      thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
+      thermalManager.setTargetHotend(thermalManager.temp_hotend[active_extruder].target, migration_extruder);
       TERN_(AUTOTEMP, planner.autotemp_update());
       TERN_(HAS_DISPLAY, thermalManager.set_heating_message(0));
       thermalManager.wait_for_hotend(active_extruder);

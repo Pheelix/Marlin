@@ -45,7 +45,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
-  extern xyze_pos_t stored_position[SAVED_POSITIONS];
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
 // Scratch space for a cartesian result
@@ -211,52 +211,6 @@ void report_real_position();
 void report_current_position();
 void report_current_position_projected();
 
-<<<<<<< HEAD
-=======
-#if ENABLED(AUTO_REPORT_POSITION)
-  #include "../libs/autoreport.h"
-  struct PositionReport { static void report() { report_current_position_projected(); } };
-  extern AutoReporter<PositionReport> position_auto_reporter;
-#endif
-
-#if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
-  #define HAS_GRBL_STATE 1
-  /**
-   * Machine states for GRBL or TinyG
-   */
-  enum M_StateEnum : uint8_t {
-    M_INIT = 0, //  0 machine is initializing
-    M_RESET,    //  1 machine is ready for use
-    M_ALARM,    //  2 machine is in alarm state (soft shut down)
-    M_IDLE,     //  3 program stop or no more blocks (M0, M1, M60)
-    M_END,      //  4 program end via M2, M30
-    M_RUNNING,  //  5 motion is running
-    M_HOLD,     //  6 motion is holding
-    M_PROBE,    //  7 probe cycle active
-    M_CYCLING,  //  8 machine is running (cycling)
-    M_HOMING,   //  9 machine is homing
-    M_JOGGING,  // 10 machine is jogging
-    M_ERROR     // 11 machine is in hard alarm state (shut down)
-  };
-  extern M_StateEnum M_State_grbl;
-  M_StateEnum grbl_state_for_marlin_state();
-  void report_current_grblstate_moving();
-  void report_current_position_moving();
-
-  #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
-    inline void set_and_report_grblstate(const M_StateEnum state) {
-      M_State_grbl = state;
-      report_current_grblstate_moving();
-    }
-  #endif
-
-  #if ENABLED(REALTIME_REPORTING_COMMANDS)
-    void quickpause_stepper();
-    void quickresume_stepper();
-  #endif
-#endif
-
->>>>>>> bugfix-2.0.x
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 

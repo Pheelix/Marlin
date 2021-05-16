@@ -68,9 +68,9 @@
 #endif
 
 #if HAS_TFT_LVGL_UI
-  #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
-  #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
+  #include "lcd/extui/lib/mks_ui/draw_ui.h"
+  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
   #include <lvgl.h>
 #endif
 
@@ -232,11 +232,7 @@
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
-  #include "lcd/extui/dgus/DGUSScreenHandler.h"
-#endif
-
-#if HAS_DRIVER_SAFE_POWER_PROTECT
-  #include "feature/stepper_driver_safety.h"
+  #include "lcd/extui/lib/dgus/DGUSScreenHandler.h"
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
@@ -334,14 +330,18 @@ void disable_all_steppers() {
 }
 
 /**
- * A Print Job exists when the timer is running or SD is printing
+ * A Print Job exists when the timer is running or SD printing
  */
-bool printJobOngoing() { return print_job_timer.isRunning() || IS_SD_PRINTING(); }
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
 
 /**
- * Printing is active when a job is underway but not paused
+ * Printing is active when the print job timer is running
  */
-bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool printingIsActive() {
+  return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
+}
 
 /**
  * Printing is paused according to SD or host indicators
@@ -366,7 +366,7 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    card.abortFilePrintNow(TERN_(SD_RESORT, true));
+    card.endFilePrint(TERN_(SD_RESORT, true));
 
     queue.clear();
     quickstop_stepper();
@@ -389,8 +389,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001"))) { // Keep trying until it gets queued
-      marlin_state = MF_RUNNING;              // Signal to stop trying
+    if (queue.enqueue_one_P(PSTR("M1001"))) {
+      marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
@@ -456,8 +456,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       already_shutdown_steppers = false;
   }
 
-  #if ENABLED(PHOTO_GCODE) && PIN_EXISTS(CHDK)
-    // Check if CHDK should be set to LOW (after M240 set it HIGH)
+  #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
     extern millis_t chdk_timeout;
     if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
       chdk_timeout = 0;
@@ -484,10 +483,6 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       SERIAL_ERROR_MSG(STR_KILL_BUTTON);
       kill();
     }
-  #endif
-
-  #if HAS_FREEZE_PIN
-    Stepper::frozen = !READ(FREEZE_PIN);
   #endif
 
   #if HAS_HOME
@@ -607,7 +602,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
+    if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
       && ELAPSED(ms, gcode.previous_move_ms + SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
     ) {
@@ -748,7 +743,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if (IS_SD_PRINTING()) recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -796,7 +791,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-      TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
     }
   #endif
 
@@ -826,19 +820,18 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
 
-  // Echo the LCD message to serial for extra context
-  if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
+  SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
-    UNUSED(lcd_error); UNUSED(lcd_component);
+    UNUSED(lcd_error);
+    UNUSED(lcd_component);
   #endif
 
-  TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
-
-  // "Error:Printer halted. kill() called!"
-  SERIAL_ERROR_MSG(STR_ERR_KILLED);
+  #if HAS_TFT_LVGL_UI
+    lv_draw_error_message(lcd_error);
+  #endif
 
   #ifdef ACTION_ON_KILL
     host_action_kill();
@@ -869,22 +862,20 @@ void minkill(const bool steppers_off/*=false*/) {
 
   TERN_(HAS_SUICIDE, suicide());
 
-  #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
+  #if HAS_KILL
 
-    // Wait for both KILL and ENC to be released
-    while (TERN0(HAS_KILL, !kill_state()) || TERN0(SOFT_RESET_ON_KILL, !ui.button_pressed()))
-      watchdog_refresh();
+    // Wait for kill to be released
+    while (kill_state()) watchdog_refresh();
 
-    // Wait for either KILL or ENC press
-    while (TERN1(HAS_KILL, kill_state()) && TERN1(SOFT_RESET_ON_KILL, ui.button_pressed()))
-      watchdog_refresh();
+    // Wait for kill to be pressed
+    while (!kill_state()) watchdog_refresh();
 
-    // Reboot the board
-    HAL_reboot();
+    void (*resetFunc)() = 0;      // Declare resetFunc() at address 0
+    resetFunc();                  // Jump to address 0
 
   #else
 
-    for (;;) watchdog_refresh();  // Wait for RESET button or power-cycle
+    for (;;) watchdog_refresh();  // Wait for reset
 
   #endif
 }
@@ -902,7 +893,7 @@ void stop() {
     if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
   #endif
 
-  if (!IsStopped()) {
+  if (IsRunning()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -1006,16 +997,7 @@ void setup() {
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     MYSERIAL1.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
-<<<<<<< HEAD
     while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-=======
-    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #ifdef SERIAL_PORT_3
-      MYSERIAL3.begin(BAUDRATE);
-      serial_connect_timeout = millis() + 1000UL;
-      while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #endif
->>>>>>> bugfix-2.0.x
   #endif
   SERIAL_ECHOLNPGM("start");
 
@@ -1027,10 +1009,6 @@ void setup() {
     #else
       SET_INPUT_PULLUP(KILL_PIN);
     #endif
-  #endif
-
-  #if HAS_FREEZE_PIN
-    SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
 
   #if HAS_SUICIDE
@@ -1171,20 +1149,10 @@ void setup() {
     DWIN_UpdateLCD();     // Show bootscreen (first image)
   #else
     SETUP_RUN(ui.init());
-    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
       SETUP_RUN(ui.show_bootscreen());
-      const millis_t bootscreen_ms = millis();
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
-  #endif
-
-  #if PIN_EXISTS(SAFE_POWER)
-    #if HAS_DRIVER_SAFE_POWER_PROTECT
-      SETUP_RUN(stepper_driver_backward_check());
-    #else
-      SETUP_LOG("SAFE_POWER");
-      OUT_WRITE(SAFE_POWER_PIN, HIGH);
-    #endif
   #endif
 
   #if ENABLED(PROBE_TARE)
@@ -1438,10 +1406,6 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
-  #if HAS_DRIVER_SAFE_POWER_PROTECT
-    SETUP_RUN(stepper_driver_backward_report());
-  #endif
-
   #if HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
@@ -1475,14 +1439,6 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
-  #endif
-
-  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
-    const millis_t elapsed = millis() - bootscreen_ms;
-    #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPAIR("elapsed=", elapsed);
-    #endif
-    SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif
 
   #if ENABLED(PASSWORD_ON_STARTUP)

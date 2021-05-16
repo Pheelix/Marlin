@@ -70,7 +70,7 @@ extern USBSerialType USBSerial;
 #elif WITHIN(SERIAL_PORT, 0, 8)
   #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from 0 to 8, or -1 for Native USB."
+  #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -81,7 +81,7 @@ extern USBSerialType USBSerial;
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from 0 to 8, or -1 for Native USB, or -2 for Ethernet."
+    #error "SERIAL_PORT_2 must be from -2 to 8. Please update your configuration."
   #endif
 #endif
 
@@ -116,8 +116,6 @@ void HAL_clear_reset_source();
 
 // Reset reason
 uint8_t HAL_get_reset_source();
-
-void HAL_reboot();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 

@@ -32,7 +32,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 02000801
+#define CONFIGURATION_ADV_H_VERSION 020008
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -912,9 +912,6 @@
   #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (mm)
   #define BACKLASH_CORRECTION    0.0       // 0.0 = no correction; 1.0 = full correction
 
-  // Add steps for motor direction changes on CORE kinematics
-  //#define CORE_BACKLASH
-
   // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
   // to reduce print artifacts. (Enabling this is costly in memory and computation!)
   //#define BACKLASH_SMOOTHING_MM 3 // (mm)
@@ -1421,15 +1418,6 @@
   // Enable if SD detect is rendered useless (e.g., by using an SD extender)
   //#define NO_SD_DETECT
 
-  // Multiple volume support - EXPERIMENTAL.
-  //#define MULTI_VOLUME
-  #if ENABLED(MULTI_VOLUME)
-    #define VOLUME_SD_ONBOARD
-    #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME SV_SD_ONBOARD
-    #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
-  #endif
-
 #endif // SDSUPPORT
 
 /**
@@ -1557,31 +1545,6 @@
     #endif
   #endif
 #endif // HAS_DGUS_LCD
-
-//
-// Additional options for AnyCubic Chiron TFT displays
-//
-#if ENABLED(ANYCUBIC_LCD_CHIRON)
-  // By default the type of panel is automatically detected.
-  // Enable one of these options if you know the panel type.
-  //#define CHIRON_TFT_STANDARD
-  //#define CHIRON_TFT_NEW
-
-  // Enable the longer Anycubic powerup startup tune
-  //#define AC_DEFAULT_STARTUP_TUNE
-
-  /**
-   * Display Folders
-   * By default the file browser lists all G-code files (including those in subfolders) in a flat list.
-   * Enable this option to display a hierarchical file browser.
-   *
-   * NOTES:
-   * - Without this option it helps to enable SDCARD_SORT_ALPHA so files are sorted before/after folders.
-   * - When used with the "new" panel, folder names will also have '.gcode' appended to their names.
-   *   This hack is currently required to force the panel to show folders.
-   */
-  #define AC_SD_FOLDER_VIEW
-#endif
 
 //
 // Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
@@ -2081,26 +2044,6 @@
  */
 //#define EMERGENCY_PARSER
 
-/**
- * Realtime Reporting (requires EMERGENCY_PARSER)
- *
- * - Report position and state of the machine (like Grbl).
- * - Auto-report position during long moves.
- * - Useful for CNC/LASER.
- *
- * Adds support for commands:
- *  S000 : Report State and Position while moving.
- *  P000 : Instant Pause / Hold while moving.
- *  R000 : Resume from Pause / Hold.
- *
- * - During Hold all Emergency Parser commands are available, as usual.
- * - Enable NANODLP_Z_SYNC and NANODLP_ALL_AXIS for move command end-state reports.
- */
-//#define REALTIME_REPORTING_COMMANDS
-#if ENABLED(REALTIME_REPORTING_COMMANDS)
-  //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
-#endif
-
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
@@ -2233,15 +2176,14 @@
 #endif // HAS_MULTI_EXTRUDER
 
 /**
- * Advanced Pause for Filament Change
- *  - Adds the G-code M600 Filament Change to initiate a filament change.
- *  - This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
+ * Advanced Pause
+ * Experimental feature for filament change support and for parking the nozzle when paused.
+ * Adds the GCode M600 for initiating filament change.
+ * If PARK_HEAD_ON_PAUSE enabled, adds the GCode M125 to pause printing and park the nozzle.
  *
- * Requirements:
- *  - For Filament Change parking enable and configure NOZZLE_PARK_FEATURE.
- *  - For user interaction enable an LCD display, HOST_PROMPT_SUPPORT, or EMERGENCY_PARSER.
- *
- * Enable PARK_HEAD_ON_PAUSE to add the G-code M125 Pause and Park.
+ * Requires an LCD display.
+ * Requires NOZZLE_PARK_FEATURE.
+ * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
 #define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -2775,7 +2717,7 @@
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
-   * M122 S0/1 will enable continuous reporting.
+   * M122 S0/1 will enable continous reporting.
    */
   #define TMC_DEBUG
 
@@ -3096,22 +3038,10 @@
 
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
-  //#define AIR_EVACUATION                     // Cutter Vacuum / Laser Blower motor control with G-codes M10-M11
-  #if ENABLED(AIR_EVACUATION)
-    #define AIR_EVACUATION_ACTIVE       LOW    // Set to "HIGH" if the on/off function is active HIGH
-    //#define AIR_EVACUATION_PIN        42     // Override the default Cutter Vacuum or Laser Blower pin
-  #endif
-
-  //#define AIR_ASSIST                         // Air Assist control with G-codes M8-M9
-  #if ENABLED(AIR_ASSIST)
-    #define AIR_ASSIST_ACTIVE           LOW    // Active state on air assist pin
-    //#define AIR_ASSIST_PIN            44     // Override the default Air Assist pin
-  #endif
-
-  //#define SPINDLE_SERVO                      // A servo converting an angle to spindle power
+  //#define SPINDLE_SERVO         // A servo converting an angle to spindle power
   #ifdef SPINDLE_SERVO
-    #define SPINDLE_SERVO_NR   0               // Index of servo used for spindle control
-    #define SPINDLE_SERVO_MIN 10               // Minimum angle for servo spindle
+    #define SPINDLE_SERVO_NR   0  // Index of servo used for spindle control
+    #define SPINDLE_SERVO_MIN 10  // Minimum angle for servo spindle
   #endif
 
   /**
@@ -3310,15 +3240,6 @@
 #endif
 
 /**
- * Stepper Driver Anti-SNAFU Protection
- *
- * If the SAFE_POWER_PIN is defined for your board, Marlin will check
- * that stepper drivers are properly plugged in before applying power.
- * Disable protection if your stepper drivers don't support the feature.
- */
-//#define DISABLE_DRIVER_SAFE_POWER_PROTECT
-
-/**
  * CNC Coordinate Systems
  *
  * Enables G53 and G54-G59.3 commands to select coordinate systems
@@ -3330,11 +3251,6 @@
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
-
-/**
- * Auto-report position with M154 S<seconds>
- */
-//#define AUTO_REPORT_POSITION
 
 /**
  * Include capabilities in M115 output
@@ -3405,7 +3321,7 @@
 #define PROPORTIONAL_FONT_RATIO 1.0
 
 /**
- * Spend 28 bytes of SRAM to optimize the G-code parser
+ * Spend 28 bytes of SRAM to optimize the GCode parser
  */
 #define FASTER_GCODE_PARSER
 
@@ -3537,9 +3453,6 @@
  * Implement M486 to allow Marlin to skip objects
  */
 //#define CANCEL_OBJECTS
-#if ENABLED(CANCEL_OBJECTS)
-  #define CANCEL_OBJECTS_REPORTING // Emit the current object as a status message
-#endif
 
 /**
  * I2C position encoders for closed loop control.
@@ -3662,16 +3575,6 @@
 #endif
 
 /**
- * Instant freeze / unfreeze functionality
- * Specified pin has pullup and connecting to ground will instantly pause motion.
- * Potentially useful for emergency stop that allows being resumed.
- */
-//#define FREEZE_FEATURE
-#if ENABLED(FREEZE_FEATURE)
-  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
-#endif
-
-/**
  * MAX7219 Debug Matrix
  *
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
@@ -3707,13 +3610,14 @@
 /**
  * NanoDLP Sync support
  *
- * Support for Synchronized Z moves when used with NanoDLP. G0/G1 axis moves will
- * output a "Z_move_comp" string to enable synchronization with DLP projector exposure.
- * This feature allows you to use [[WaitForDoneMessage]] instead of M400 commands.
+ * Add support for Synchronized Z moves when using with NanoDLP. G0/G1 axis moves will output "Z_move_comp"
+ * string to enable synchronization with DLP projector exposure. This change will allow to use
+ * [[WaitForDoneMessage]] instead of populating your gcode with M400 commands
  */
 //#define NANODLP_Z_SYNC
 #if ENABLED(NANODLP_Z_SYNC)
-  //#define NANODLP_ALL_AXIS  // Send a "Z_move_comp" report for any axis move (not just Z).
+  //#define NANODLP_ALL_AXIS  // Enables "Z_move_comp" output on any axis move.
+                              // Default behavior is limited to Z axis only.
 #endif
 
 /**
@@ -3888,9 +3792,3 @@
  * a crash from a remote location. Requires ~400 bytes of SRAM and 5Kb of flash.
  */
 //#define POSTMORTEM_DEBUGGING
-
-/**
- * Software Reset options
- */
-//#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
-//#define SOFT_RESET_ON_KILL            // Use a digital button to soft-reset the controller after KILL
