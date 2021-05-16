@@ -482,7 +482,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
       #endif
     }
+  }
 
+  void MarlinUI::bootscreen_completion(const millis_t) {
     lcd.clear();
     safe_delay(100);
     set_custom_characters(CHARSET_INFO);
@@ -520,15 +522,25 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
+<<<<<<< HEAD
     const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
                 t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
     const float t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+=======
+    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
+                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
+  #else
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+>>>>>>> bugfix-2.0.x
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
+<<<<<<< HEAD
   lcd_put_u8str(i16tostr3rj(t1 + 0.5));
+=======
+  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -541,7 +553,36 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     }
     else
   #endif
-      lcd_put_u8str(i16tostr3left(t2 + 0.5));
+      lcd_put_u8str(i16tostr3left(t2));
+
+  if (prefix >= 0) {
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
+    lcd_put_wchar(' ');
+    if (t2 < 10) lcd_put_wchar(' ');
+  }
+}
+
+#if HAS_COOLER
+FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
+  const celsius_t t2 = thermalManager.degTargetCooler();
+
+  if (prefix >= 0) lcd_put_wchar(prefix);
+
+  lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
+>>>>>>> bugfix-2.0.x
+  lcd_put_wchar('/');
+
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+      lcd_put_wchar(' ');
+      if (t2 >= 10) lcd_put_wchar(' ');
+      if (t2 >= 100) lcd_put_wchar(' ');
+    }
+    else
+  #endif
+      lcd_put_u8str(i16tostr3left(t2));
 
   if (prefix >= 0) {
     lcd_put_wchar(LCD_STR_DEGREE[0]);
@@ -708,7 +749,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink)
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && printingIsActive();
     if (show_remain) {
       #if ENABLED(USE_M73_REMAINING_TIME)
         duration_t remaining = ui.get_remaining_time();
@@ -831,7 +872,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
