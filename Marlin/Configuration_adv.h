@@ -827,7 +827,7 @@
   // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
   // If not defined, probe limits will be used.
   // Override with 'M422 S<index> X<pos> Y<pos>'
-  #define Z_STEPPER_ALIGN_XY { {  40, 117 }, { 195, 117 } }
+  #define Z_STEPPER_ALIGN_XY { { 60, 117 }, { 175, 117 } }
 
   /**
    * Orientation for the automatically-calculated probe positions.
@@ -1170,7 +1170,7 @@
       #define PROBE_OFFSET_WIZARD_START_Z -4.0
 
       // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
-      #define PROBE_OFFSET_WIZARD_XY_POS { 116, 142 }
+      //#define PROBE_OFFSET_WIZARD_XY_POS { 117, 117 }
     #endif
   #endif
 
@@ -1882,10 +1882,10 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT 28
-  #define PROBING_MARGIN_RIGHT 40
-  #define PROBING_MARGIN_FRONT 30
-  #define PROBING_MARGIN_BACK 40
+  #define PROBING_MARGIN_LEFT 58
+  #define PROBING_MARGIN_RIGHT 0
+  #define PROBING_MARGIN_FRONT 60
+  #define PROBING_MARGIN_BACK 60
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
