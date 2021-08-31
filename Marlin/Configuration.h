@@ -1173,7 +1173,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 47, -12, -1.85 }
+#define NOZZLE_TO_PROBE_OFFSET { 47, -12, -1.525 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1183,7 +1183,7 @@
 #define XY_PROBE_FEEDRATE (150*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (50*60)
+#define Z_PROBE_FEEDRATE_FAST (30*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
