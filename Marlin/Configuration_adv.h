@@ -521,7 +521,7 @@
 #define FAN_KICKSTART_TIME 200
 
 // Some coolers may require a non-zero "off" state.
-//#define FAN_OFF_PWM  1
+#define FAN_OFF_PWM  1
 
 /**
  * PWM Fan Scaling
@@ -535,7 +535,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-//#define FAN_MIN_PWM 25
+//#define FAN_MIN_PWM 50
 //#define FAN_MAX_PWM 255
 
 /**
@@ -876,7 +876,7 @@
   // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
   // If not defined, probe limits will be used.
   // Override with 'M422 S<index> X<pos> Y<pos>'
-  #define Z_STEPPER_ALIGN_XY { { 80, 117 }, { 150, 117 } }
+  #define Z_STEPPER_ALIGN_XY { { 60, 117 }, { 175, 117 } }
 
   /**
    * Orientation for the automatically-calculated probe positions.
@@ -928,11 +928,11 @@
 //
 // Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
 //
-//#define ASSISTED_TRAMMING
+#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  30, 60 }, { 205,  60 }, { 205, 150 }, { 30, 150 } }
+  #define TRAMMING_POINT_XY { {  60, 60 }, { 175,  60 }, { 175, 175 }, { 60, 175 } }
 
   // Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
@@ -1036,7 +1036,7 @@
   //#define BACKLASH_SMOOTHING_MM 3 // (mm)
 
   // Add runtime configuration and tuning of backlash values (M425)
-  #define BACKLASH_GCODE
+  //#define BACKLASH_GCODE
 
   #if ENABLED(BACKLASH_GCODE)
     // Measure the Z backlash when probing (G29) and set with "M425 Z"
@@ -1951,10 +1951,10 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT PROBING_MARGIN
+  #define PROBING_MARGIN_LEFT  58
   #define PROBING_MARGIN_RIGHT PROBING_MARGIN
-  #define PROBING_MARGIN_FRONT PROBING_MARGIN
-  #define PROBING_MARGIN_BACK PROBING_MARGIN
+  #define PROBING_MARGIN_FRONT 60
+  #define PROBING_MARGIN_BACK  60
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
