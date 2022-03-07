@@ -110,7 +110,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_speed_step();
       break;
     case ID_C_RETURN:
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

@@ -136,16 +136,19 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     else if (DIALOG_IS(PAUSE_MESSAGE_OPTION))
       pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
     else if (DIALOG_IS(PAUSE_MESSAGE_RESUME)) {
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
     }
   #endif
   else if (DIALOG_IS(STORE_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.save());
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   else if (DIALOG_IS(READ_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.load());
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   else if (DIALOG_IS(REVERT_EEPROM_TIPS)) {
     TERN_(EEPROM_SETTINGS, (void)settings.reset());
@@ -163,23 +166,27 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
   }
   else if (DIALOG_IS(WIFI_CONFIG_TIPS)) {
     uiCfg.configWifi = true;
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_LOAD_COMPLETED))
     uiCfg.filament_heat_completed_load = true;
   else if (DIALOG_IS(TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED))
     uiCfg.filament_heat_completed_unload = true;
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_COMPLETED, TYPE_FILAMENT_UNLOAD_COMPLETED)) {
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
       cloud_unbind();
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
     }
   #endif
   else {
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
 }
 
@@ -190,10 +197,11 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
-    queue.enqueue_one(F("M410"));
+    queue.enqueue_one_P(PSTR("M410"));
     uiCfg.filament_rate                = 0;
     uiCfg.filament_loading_completed   = false;
     uiCfg.filament_unloading_completed = false;
@@ -202,10 +210,12 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     uiCfg.filament_unloading_time_flg  = false;
     uiCfg.filament_unloading_time_cnt  = 0;
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
   else {
-    goto_previous_ui();
+    clear_cur_ui();
+    draw_return_ui();
   }
 }
 

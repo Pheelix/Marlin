@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -143,7 +143,9 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PA0   // FAN
 #endif
-#define FAN_SOFT_PWM_REQUIRED
+#if PIN_EXISTS(FAN)
+  #define FAN_SOFT_PWM
+#endif
 
 //
 // SD Card

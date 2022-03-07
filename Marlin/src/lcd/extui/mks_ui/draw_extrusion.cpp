@@ -55,7 +55,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_E_ADD:
-      if (thermalManager.hotEnoughToExtrude(uiCfg.extruderIndex)) {
+      if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
         sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
         queue.inject(public_buf_l);
         extrudeAmount += uiCfg.extruStep;
@@ -63,9 +63,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       }
       break;
     case ID_E_DEC:
-      if (thermalManager.hotEnoughToExtrude(uiCfg.extruderIndex)) {
+      if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
         sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-        queue.inject(public_buf_l);
+        queue.enqueue_one_now(public_buf_l);
         extrudeAmount -= uiCfg.extruStep;
         disp_extru_amount();
       }
@@ -74,11 +74,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (ENABLED(HAS_MULTI_EXTRUDER)) {
         if (uiCfg.extruderIndex == 0) {
           uiCfg.extruderIndex = 1;
-          queue.inject(F("T1"));
+          queue.inject_P(PSTR("T1"));
         }
         else {
           uiCfg.extruderIndex = 0;
-          queue.inject(F("T0"));
+          queue.inject_P(PSTR("T0"));
         }
       }
       else
@@ -106,7 +106,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_ext_speed();
       break;
     case ID_E_RETURN:
-      goto_previous_ui();
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

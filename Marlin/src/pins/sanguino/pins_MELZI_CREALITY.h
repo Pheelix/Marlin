@@ -36,7 +36,7 @@
 #define BOARD_INFO_NAME "Melzi (Creality)"
 
 // Alter timing for graphical display
-#if IS_U8GLIB_ST7920
+#if ENABLED(U8GLIB_ST7920)
   #define BOARD_ST7920_DELAY_1               125
   #define BOARD_ST7920_DELAY_2               125
   #define BOARD_ST7920_DELAY_3               125
@@ -68,7 +68,7 @@
   #if SERVO0_PIN == BEEPER_PIN
     #undef BEEPER_PIN
   #endif
-#elif HAS_FILAMENT_SENSOR
+#elif ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
     #define FIL_RUNOUT_PIN                    27
   #endif
