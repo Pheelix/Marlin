@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "Marlin 2.0.9.2 - 12-13-2021"
+#define SHORT_BUILD_VERSION "Marlin 2.0.9.3 - 3-07-2022"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "12-13-2021"
+#define STRING_DISTRIBUTION_DATE "3-07-2022"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
