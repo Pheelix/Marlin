@@ -33,11 +33,11 @@
 //
 // Trinamic Stallguard pins
 //
-#define X_DIAG_PIN                         P1_26  // X-
+#define X_DIAG_PIN                         P1_29  // X-
 #define Y_DIAG_PIN                         P1_27  // Y-
 #define Z_DIAG_PIN                         P1_25  // Z-
 #define E0_DIAG_PIN                        P1_28  // X+
-#define E1_DIAG_PIN                        P1_29  // Y+
+#define E1_DIAG_PIN                        P1_26  // Y+
 
 //
 // Limit Switches
@@ -104,19 +104,20 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                         P0_01
-#define X_DIR_PIN                          P0_00
-#define X_ENABLE_PIN                       P0_10
-#ifndef X_CS_PIN
-  #define X_CS_PIN                         P1_01
-#endif
 
-//#define X_STEP_PIN                         P2_02
-//#define X_DIR_PIN                          P2_06
-//#define X_ENABLE_PIN                       P2_01
+//#define X_STEP_PIN                         P0_01
+//#define X_DIR_PIN                          P0_00
+//#define X_ENABLE_PIN                       P0_10
 //#ifndef X_CS_PIN
-  //#define X_CS_PIN                         P1_17
+  //#define X_CS_PIN                         P1_01
 //#endif
+
+#define X_STEP_PIN                         P2_02
+#define X_DIR_PIN                          P2_06
+#define X_ENABLE_PIN                       P2_01
+#ifndef X_CS_PIN
+  #define X_CS_PIN                         P1_17
+#endif
 
 #define Y_STEP_PIN                         P0_19
 #define Y_DIR_PIN                          P0_20
@@ -139,9 +140,12 @@
   #define E0_CS_PIN                        P1_08
 #endif
 
-//#ifndef E1_CS_PIN
-  //#define E1_CS_PIN                        P1_01
-//#endif
+#define E1_STEP_PIN                        P0_01
+#define E1_DIR_PIN                         P0_00
+#define E1_ENABLE_PIN                      P0_10
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                        P1_01
+#endif
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -180,12 +184,10 @@
   //
   // Software serial
   //
-  ////#define X_SERIAL_TX_PIN                  P1_04
-  ////#define X_SERIAL_RX_PIN                  P1_01
 
-  //#define X_SERIAL_TX_PIN                  P4_29
-  //#define X_SERIAL_RX_PIN                  P1_17
-  
+  //#define X_SERIAL_TX_PIN                  P1_04
+  //#define X_SERIAL_RX_PIN                  P1_01
+
   #define X_SERIAL_TX_PIN                  P4_29
   #define X_SERIAL_RX_PIN                  P1_17
 
