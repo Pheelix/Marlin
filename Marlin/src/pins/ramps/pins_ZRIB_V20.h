@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
  * V2 and V3 Boards only differ in USB controller, nothing affecting the pins.
  */
 
-#include "pins_MKS_GEN_13.h"
+#include "pins_MKS_GEN_13.h" // ... RAMPS
 
 #define ZRIB_V20_D6_PIN                        6  // Fan
 #define ZRIB_V20_D9_PIN                        9  // Fan2
@@ -69,9 +69,9 @@
   #undef ADC_KEYPAD_PIN
   #undef BEEPER_PIN
 
-  #undef SHIFT_OUT
-  #undef SHIFT_CLK
-  #undef SHIFT_LD
+  #undef SHIFT_OUT_PIN
+  #undef SHIFT_CLK_PIN
+  #undef SHIFT_LD_PIN
   #undef BTN_EN1
   #undef BTN_EN2
   #undef BTN_ENC

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __PLAT_LINUX__
@@ -31,9 +31,7 @@ void cli() { } // Disable
 void sei() { } // Enable
 
 // Time functions
-void _delay_ms(const int delay_ms) {
-  delay(delay_ms);
-}
+void _delay_ms(const int ms) { delay(ms); }
 
 uint32_t millis() {
   return (uint32_t)Clock::millis();

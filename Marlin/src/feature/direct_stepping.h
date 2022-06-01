@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -68,11 +68,10 @@ namespace DirectStepping {
     static State state;
     static volatile bool fatal_error;
 
-    static volatile PageState page_states[Cfg::NUM_PAGES];
+    static volatile PageState page_states[Cfg::PAGE_COUNT];
     static volatile bool page_states_dirty;
-    static millis_t next_response;
 
-    static uint8_t pages[Cfg::NUM_PAGES][Cfg::PAGE_SIZE];
+    static uint8_t pages[Cfg::PAGE_COUNT][Cfg::PAGE_SIZE];
     static uint8_t checksum;
     static write_byte_idx_t write_byte_idx;
     static page_idx_t write_page_idx;
@@ -88,22 +87,19 @@ namespace DirectStepping {
   struct config_t {
     static constexpr char CONTROL_CHAR  = '!';
 
-    static constexpr int NUM_PAGES      = num_pages;
-    static constexpr int NUM_AXES       = num_axes;
+    static constexpr int PAGE_COUNT     = num_pages;
+    static constexpr int AXIS_COUNT     = num_axes;
     static constexpr int BITS_SEGMENT   = bits_segment;
     static constexpr int DIRECTIONAL    = dir ? 1 : 0;
     static constexpr int SEGMENTS       = segments;
 
-    static constexpr int RAW            = (BITS_SEGMENT == 1) ? 1 : 0;
-    static constexpr int NUM_SEGMENTS   = 1 << BITS_SEGMENT;
-    static constexpr int SEGMENT_STEPS  = 1 << (BITS_SEGMENT - DIRECTIONAL - RAW);
+    static constexpr int NUM_SEGMENTS   = _BV(BITS_SEGMENT);
+    static constexpr int SEGMENT_STEPS  = _BV(BITS_SEGMENT - DIRECTIONAL) - 1;
     static constexpr int TOTAL_STEPS    = SEGMENT_STEPS * SEGMENTS;
-    static constexpr int PAGE_SIZE      = (NUM_AXES * BITS_SEGMENT * SEGMENTS) / 8;
-
-    static constexpr millis_t RESPONSE_INTERVAL_MS = 50;
+    static constexpr int PAGE_SIZE      = (AXIS_COUNT * BITS_SEGMENT * SEGMENTS) / 8;
 
     typedef typename TypeSelector<(PAGE_SIZE>256), uint16_t, uint8_t>::type write_byte_idx_t;
-    typedef typename TypeSelector<(NUM_PAGES>256), uint16_t, uint8_t>::type page_idx_t;
+    typedef typename TypeSelector<(PAGE_COUNT>256), uint16_t, uint8_t>::type page_idx_t;
   };
 
   template <uint8_t num_pages>

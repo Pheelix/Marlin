@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,10 +42,19 @@
  *  P0 S<strokes>    : Stroke cleaning with S strokes
  *  P1 Sn T<objects> : Zigzag cleaning with S repeats and T zigzags
  *  P2 Sn R<radius>  : Circle cleaning with S repeats and R radius
+ *  X, Y, Z          : Specify axes to move during cleaning. Default: ALL.
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error(linear_bits & ~TERN0(NOZZLE_CLEAN_NO_Z, Z_AXIS) & ~TERN0(NOZZLE_CLEAN_NO_Y, Y_AXIS)))
+    return;
+
+  #ifdef WIPE_SEQUENCE_COMMANDS
+    if (!parser.seen_any()) {
+      process_subcommands_now(F(WIPE_SEQUENCE_COMMANDS));
+      return;
+    }
+  #endif
 
   const uint8_t pattern = parser.ushortval('P', 0),
                 strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
@@ -63,9 +72,11 @@ void GcodeSuite::G12() {
     TEMPORARY_BED_LEVELING_STATE(!TEST(cleans, Z_AXIS) && planner.leveling_active);
   #endif
 
-  TEMPORARY_SOFT_ENDSTOP_STATE(parser.boolval('E'));
+  SET_SOFT_ENDSTOP_LOOSE(!parser.boolval('E'));
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
+
+  SET_SOFT_ENDSTOP_LOOSE(false);
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

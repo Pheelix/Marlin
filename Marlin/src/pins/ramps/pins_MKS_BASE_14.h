@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -58,7 +58,7 @@
   #define CASE_LIGHT_PIN                      11  // PB5 ** Pin24 ** PWM11
 #endif
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,9 +26,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, SDSUPPORT)
+#if BOTH(HAS_MARLINUI_MENU, SDSUPPORT)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../sd/cardreader.h"
 
 void lcd_sd_updir() {
@@ -48,6 +48,7 @@ void lcd_sd_updir() {
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
     defer_status_screen();
+    TERN_(HAS_TOUCH_SLEEP, ui.wakeup_screen());
   }
 
 #endif
@@ -78,7 +79,7 @@ class MenuItem_sdfile : public MenuItem_sdbase {
           strcpy(buffer + 1, longest);
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, ui.goto_previous_screen,
+            sdcard_start_selected_file, nullptr,
             GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
           );
         });
@@ -99,15 +100,15 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
-      TERN_(HAS_GRAPHICAL_LCD, ui.drawing_screen = false);
+      TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
       ui.refresh();
     }
 };
 
-void menu_media() {
+void menu_media_filelist() {
   ui.encoder_direction_menus();
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     static uint16_t fileCnt;
     if (ui.first_page) fileCnt = card.get_num_Files();
   #else
@@ -115,14 +116,18 @@ void menu_media() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  #if ENABLED(MULTI_VOLUME)
+    ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
+  #else
+    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+  #endif
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
@@ -138,4 +143,22 @@ void menu_media() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && SDSUPPORT
+#if ENABLED(MULTI_VOLUME)
+  void menu_media_select() {
+    START_MENU();
+    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+    #if ENABLED(VOLUME_SD_ONBOARD)
+      ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    #if ENABLED(VOLUME_USB_FLASH_DRIVE)
+      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    END_MENU();
+  }
+#endif
+
+void menu_media() {
+  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
+}
+
+#endif // HAS_MARLINUI_MENU && SDSUPPORT

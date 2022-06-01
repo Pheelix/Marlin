@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 #define REVERSE_TEMP_SENSOR_RANGE_201 1
 
 // Pt100 with LMV324 amp on Overlord v1.1 electronics
-const temp_entry_t temptable_201[] PROGMEM = {
+constexpr temp_entry_t temptable_201[] PROGMEM = {
   { OV(   0),   0 },
   { OV(   8),   1 },
   { OV(  23),   6 },
