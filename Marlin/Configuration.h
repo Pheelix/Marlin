@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define CONFIG_EXAMPLES_DIR "Creality/Ender-3"
+//#define CONFIG_EXAMPLES_DIR "Creality/Ender-3"
 
 /**
  * Configuration.h
@@ -657,6 +657,7 @@
     #define DEFAULT_Kp   9.74
     #define DEFAULT_Ki   0.54
     #define DEFAULT_Kd  43.24
+  #endif
 #endif
 
 //===========================================================================
@@ -1771,15 +1772,15 @@
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-#define LEVEL_BED_CORNERS
+#define LEVEL_BED_TRAMMING
 
-#if ENABLED(LEVEL_BED_CORNERS)
+#if ENABLED(LCD_BED_TRAMMING)
   #define LEVEL_CORNERS_INSET_LFRB { 60, 60, 60, 60 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
   #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
   #define LEVEL_CENTER_TOO              // Move to the center after the last corner
   #define LEVEL_CORNERS_USE_PROBE
-  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
+  #if ENABLED(BED_TRAMMING_USE_PROBE)
     #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
     //#define LEVEL_CORNERS_AUDIO_FEEDBACK
