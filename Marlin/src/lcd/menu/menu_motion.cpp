@@ -35,13 +35,10 @@
 
 #include "../../module/motion.h"
 #include "../../gcode/parser.h" // for inch support
+#include "../../module/temperature.h"
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
-#endif
-
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-  #include "../../module/temperature.h"
 #endif
 
 #if HAS_LEVELING
@@ -146,7 +143,11 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
 
   if (LCD_HEIGHT >= 4) {
+<<<<<<< HEAD
     if (axis < LINEAR_AXES)
+=======
+    if (axis < NUM_AXES)
+>>>>>>> upstream/2.1.x
       STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
     else {
       TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
@@ -179,23 +180,20 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   inline void _menu_move_distance_e_maybe() {
-    #if ENABLED(PREVENT_COLD_EXTRUSION)
-      const bool too_cold = thermalManager.tooColdToExtrude(active_extruder);
-      if (too_cold) {
-        ui.goto_screen([]{
-          MenuItem_confirm::select_screen(
-            GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
-            _goto_menu_move_distance_e, nullptr,
-            GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
-          );
-        });
-        return;
-      }
-    #endif
-    _goto_menu_move_distance_e();
+    if (thermalManager.tooColdToExtrude(active_extruder)) {
+      ui.goto_screen([]{
+        MenuItem_confirm::select_screen(
+          GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BACK),
+          _goto_menu_move_distance_e, nullptr,
+          GET_TEXT_F(MSG_HOTEND_TOO_COLD), (const char *)nullptr, F("!")
+        );
+      });
+    }
+    else
+      _goto_menu_move_distance_e();
   }
 
-#endif // E_MANUAL
+#endif
 
 void menu_move() {
   START_MENU();
@@ -220,7 +218,11 @@ void menu_move() {
     }
     #if HAS_Z_AXIS
       #define _AXIS_MOVE(N) SUBMENU_N(N, MSG_MOVE_N, []{ _menu_move_distance(AxisEnum(N), []{ lcd_move_axis(AxisEnum(N)); }); });
+<<<<<<< HEAD
       REPEAT_S(2, LINEAR_AXES, _AXIS_MOVE);
+=======
+      REPEAT_S(2, NUM_AXES, _AXIS_MOVE);
+>>>>>>> upstream/2.1.x
     #endif
   }
   else
