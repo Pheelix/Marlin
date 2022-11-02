@@ -2554,7 +2554,7 @@
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 20
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
 #define LCD_FEEDBACK_FREQUENCY_HZ 1000
 
 //=============================================================================
