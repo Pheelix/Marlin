@@ -2120,10 +2120,10 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT 0
-  #define PROBING_MARGIN_RIGHT 45
-  #define PROBING_MARGIN_FRONT 40
-  #define PROBING_MARGIN_BACK 40
+  #define PROBING_MARGIN_LEFT 5
+  #define PROBING_MARGIN_RIGHT 50
+  #define PROBING_MARGIN_FRONT 45
+  #define PROBING_MARGIN_BACK 45
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
@@ -4296,12 +4296,12 @@
 //
 // M42 - Set pin states
 //
-//#define DIRECT_PIN_CONTROL
+#define DIRECT_PIN_CONTROL
 
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 // Enable Tests that will run at startup and produce a report
 //#define MARLIN_TEST_BUILD
