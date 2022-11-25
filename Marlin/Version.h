@@ -41,12 +41,12 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "11-20-2022"
+#define STRING_DISTRIBUTION_DATE "11-24-2022"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "Ender 3 Max - SKR 1.4T"
+#define MACHINE_NAME "Ender 3 Max"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
