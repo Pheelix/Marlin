@@ -662,9 +662,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp 15.5362
-    #define DEFAULT_Ki 0.8644
-    #define DEFAULT_Kd 69.808
+    #define DEFAULT_Kp 9.2938
+    #define DEFAULT_Ki 0.5468
+    #define DEFAULT_Kd 39.4916
   #endif
 #endif
 
@@ -1480,11 +1480,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 47.5, -14, -1.54 }
+#define NOZZLE_TO_PROBE_OFFSET { 5, -40, -0.98 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 0
+#define PROBING_MARGIN 20
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (166*60)
