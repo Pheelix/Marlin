@@ -688,9 +688,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp   25.3999
-    #define DEFAULT_Ki   1.2402
-    #define DEFAULT_Kd   130.0476
+    #define DEFAULT_Kp 16.1954
+    #define DEFAULT_Ki 0.7847
+    #define DEFAULT_Kd 83.5683
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -769,7 +769,7 @@
  *
  * With this option disabled, bang-bang will be used. BED_LIMIT_SWITCHING enables hysteresis.
  */
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0
@@ -1513,7 +1513,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, -15, -0.70 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, -10, -0.88 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
