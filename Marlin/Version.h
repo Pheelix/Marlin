@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-//#define SHORT_BUILD_VERSION "2.1.2.5"
+#define SHORT_BUILD_VERSION "SKR 1.3 - 2.1.2.5"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2024-11-18"
+#define STRING_DISTRIBUTION_DATE "2025-03-11"
 
 /**
  * The protocol for communication to the host. Protocol indicates communication
@@ -53,7 +53,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-//#define MACHINE_NAME "3D Printer"
+#define MACHINE_NAME "Ender 3 - SKR 1.3"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
