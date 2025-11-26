@@ -1035,7 +1035,7 @@
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  65, 65 }, { 165, 65 }, { 165, 165 }, { 65, 165 } }
+  #define TRAMMING_POINT_XY { {  60, 30 }, { 195, 30 }, { 195, 175 }, { 60, 175 } }
 
   // Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
@@ -2178,8 +2178,8 @@
 #if PROBE_SELECTED && !IS_KINEMATIC
   #define PROBING_MARGIN_LEFT  10
   #define PROBING_MARGIN_RIGHT 20
-  #define PROBING_MARGIN_FRONT 20
-  #define PROBING_MARGIN_BACK  20
+  #define PROBING_MARGIN_FRONT 10
+  #define PROBING_MARGIN_BACK  30
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
