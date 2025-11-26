@@ -1031,11 +1031,11 @@
 //
 // Add the G35 command to read bed corners to help adjust screws. Requires a bed probe.
 //
-#define ASSISTED_TRAMMING
+//#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
   // Define positions for probe points.
-  #define TRAMMING_POINT_XY { {  60, 30 }, { 195, 30 }, { 195, 175 }, { 60, 175 } }
+  #define TRAMMING_POINT_XY { {  50, 50 }, { 212, 50 }, { 212, 195 }, { 50, 195 } }
 
   // Define position names for probe points.
   #define TRAMMING_POINT_NAME_1 "Front-Left"
@@ -1502,7 +1502,7 @@
 #if HAS_DISPLAY && EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
   #define SHOW_PROGRESS_PERCENT           // Show print progress percentage (doesn't affect progress bar)
   #define SHOW_ELAPSED_TIME               // Display elapsed printing time (prefix 'E')
-  //#define SHOW_REMAINING_TIME           // Display estimated time to completion (prefix 'R')
+  #define SHOW_REMAINING_TIME           // Display estimated time to completion (prefix 'R')
   #if ENABLED(SET_INTERACTION_TIME)
     #define SHOW_INTERACTION_TIME         // Display time until next user interaction ('C' = filament change)
   #endif
@@ -2148,12 +2148,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
+  //#define PROBE_PT_1_X 40
+  //#define PROBE_PT_1_Y 20
+  //#define PROBE_PT_2_X 212
   //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  //#define PROBE_PT_3_X 212
+  //#define PROBE_PT_3_Y 195
 #endif
 
 /**
@@ -2176,10 +2176,10 @@
  * the probe to be unable to reach any points.
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  #define PROBING_MARGIN_LEFT  10
-  #define PROBING_MARGIN_RIGHT 20
-  #define PROBING_MARGIN_FRONT 10
-  #define PROBING_MARGIN_BACK  30
+  #define PROBING_MARGIN_LEFT  35
+  #define PROBING_MARGIN_RIGHT 35
+  #define PROBING_MARGIN_FRONT 30
+  #define PROBING_MARGIN_BACK  50
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
