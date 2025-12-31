@@ -975,7 +975,7 @@
    * If not defined, probe limits will be used.
    * Override with 'M422 S<index> X<pos> Y<pos>'.
    */
-  #define Z_STEPPER_ALIGN_XY { { 50, 150 }, { 250, 150 } }
+  //#define Z_STEPPER_ALIGN_XY { { 50, 150 }, { 250, 150 } }
 
   /**
    * Orientation for the automatically-calculated probe positions.
@@ -997,7 +997,7 @@
    *               | 1   2 | 2   3 | 3   4 | 4   1 |
    */
   #ifndef Z_STEPPER_ALIGN_XY
-    //#define Z_STEPPERS_ORIENTATION 0
+    #define Z_STEPPERS_ORIENTATION 0
   #endif
 
   /**
@@ -1179,14 +1179,14 @@
 
   // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
   // to reduce print artifacts. (Enabling this is costly in memory and computation!)
-  //#define BACKLASH_SMOOTHING_MM 3 // (mm)
+  #define BACKLASH_SMOOTHING_MM 3 // (mm)
 
   // Add runtime configuration and tuning of backlash values (M425)
-  //#define BACKLASH_GCODE
+  #define BACKLASH_GCODE
 
   #if ENABLED(BACKLASH_GCODE)
     // Measure the Z backlash when probing (G29) and set with "M425 Z"
-    #define MEASURE_BACKLASH_WHEN_PROBING
+    //#define MEASURE_BACKLASH_WHEN_PROBING
 
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       // When measuring, the probe will move up to BACKLASH_MEASUREMENT_LIMIT
@@ -3623,7 +3623,7 @@
  */
 #define EXTENDED_CAPABILITIES_REPORT
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  //#define M115_GEOMETRY_REPORT
+  #define M115_GEOMETRY_REPORT
 #endif
 
 // @section security
@@ -4259,7 +4259,7 @@
 /**
  * Software Reset options
  */
-//#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
+#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
 //#define SOFT_RESET_ON_KILL            // Use a digital button to soft-reset the controller after KILL
 
 // Report uncleaned reset reason from register r2 instead of MCUSR. Supported by Optiboot on AVR.
