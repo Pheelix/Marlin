@@ -4881,3 +4881,6 @@
 
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
+
+#define DIAG_PINS_REMOVED
+#define NO_AUTO_ASSIGN_WARNING
