@@ -1710,7 +1710,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -35, 5, -1 } // (mm) X, Y, Z distance from Nozzle tip to Probe trigger-point
+#define NOZZLE_TO_PROBE_OFFSET { -35, 5, -3.2 } // (mm) X, Y, Z distance from Nozzle tip to Probe trigger-point
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -1892,7 +1892,7 @@
 //#define INVERT_W_DIR false
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true
+#define INVERT_E0_DIR false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
